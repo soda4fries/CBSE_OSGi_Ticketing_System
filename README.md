@@ -25,6 +25,7 @@ ticket-system-parent/
 ```
 
 ## Setup Instructions
+Powershell in windows can be used for wget.
 
 1. Download and Extract Apache Felix:
 ```bash
