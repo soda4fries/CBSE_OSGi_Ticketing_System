@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1734304062084
+Build-Jdk-Spec: 22
+Bundle-Activator: com.ticketsystem.core.Activator
+Bundle-ManifestVersion: 2
+Bundle-Name: Ticket System Core
+Bundle-SymbolicName: com.ticketsystem.core
+Bundle-Version: 1.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin 5.1.8
+Export-Package: com.ticketsystem.core;version="1.0.0.SNAPSHOT";uses:="or
+ g.osgi.framework"
+Import-Package: com.ticketsystem.api.model;version="[1.0,2)",com.tickets
+ ystem.api.service;version="[1.0,2)",org.osgi.framework;version="[1.9,2)
+ ",java.io,java.lang,java.lang.invoke,java.util,java.util.concurrent,jav
+ a.util.function,java.util.stream
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+Tool: Bnd-6.3.1.202206071316
