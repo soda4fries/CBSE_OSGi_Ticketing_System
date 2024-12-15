@@ -33,7 +33,7 @@ mkdir felix
 cd felix
 
 # Download Felix Framework
-wget https://downloads.apache.org/felix/org.apache.felix.main.distribution-7.0.5.zip
+wget https://downloads.apache.org/felix/org.apache.felix.main.distribution-7.0.5.zip -o felix.zip
 
 # Extract the archive
 unzip org.apache.felix.main.distribution-7.0.5.zip
