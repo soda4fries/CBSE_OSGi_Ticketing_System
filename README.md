@@ -1,7 +1,6 @@
 # OSGi Ticket System using Apache Felix
 
-This project implements a ticket management system using OSGi bundles with Apache Felix framework. The 'initlizeProeject.bat' and pom can be modified to suit ur project
-
+This project implements a ticket management system using OSGi bundles with Apache Felix framework.  The `initializeProject.bat` and pom.xml can be modified to suit ur project
 ## Prerequisites
 
 - JDK 11
