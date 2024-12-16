@@ -1,58 +1,69 @@
 # OSGi Ticket System using Apache Felix
+This project implements a ticket management system using OSGi bundles with Apache Felix framework. It uses a modular design with a core bundle that exports the API and a consumer bundle that demonstrates usage.
 
-This project implements a ticket management system using OSGi bundles with Apache Felix framework.  The `initializeProject.bat` and pom.xml can be modified to suit ur project
 ## Prerequisites
-
 - JDK 11
 - Maven 3.6+
 - Apache Felix 7.0.5
 
 ## Project Structure
-
 ```
 ticket-system-parent/
 ├── pom.xml
-├── ticket-api/
-│   ├── pom.xml
-│   └── src/
 ├── ticket-core/
 │   ├── pom.xml
 │   └── src/
+│       └── main/java/
+│           ├── com/ticketsystem/api/
+│           │   ├── model/
+│           │   │   ├── Ticket.java
+│           │   │   ├── Reply.java
+│           │   │   └── User.java
+│           │   └── service/
+│           │       └── TicketService.java
+│           └── com/ticketsystem/core/
+│               ├── impl/
+│               │   └── TicketServiceImpl.java
+│               └── Activator.java
 └── ticket-consumer/
     ├── pom.xml
     └── src/
+        └── main/java/com/ticketsystem/consumer/
+            ├── TicketConsumer.java
+            └── Activator.java
 ```
 
-## Setup Instructions
-Powershell in windows can be used for wget.
+## Bundle Structure
+1. **Core Bundle (ticket-core)**
+   - Exports API packages:
+     - `com.ticketsystem.api.model`
+     - `com.ticketsystem.api.service`
+   - Private implementation package:
+     - `com.ticketsystem.core.impl`
+   - Contains service interfaces, models, and implementation
 
+2. **Consumer Bundle (ticket-consumer)**
+   - Imports API packages from core bundle
+   - Demonstrates service usage
+   - Includes test suite
+
+## Setup Instructions
 1. Download and Extract Apache Felix:
 ```bash
-# Create a directory for Felix
 mkdir felix
 cd felix
+# For Windows PowerShell
+Invoke-WebRequest -Uri https://downloads.apache.org/felix/org.apache.felix.main.distribution-7.0.5.zip -OutFile felix.zip
+Expand-Archive felix.zip -DestinationPath .
 
-# Download Felix Framework
-wget https://downloads.apache.org/felix/org.apache.felix.main.distribution-7.0.5.zip -o felix.zip
-
-# Extract the archive
+# For Linux/Mac
+wget https://downloads.apache.org/felix/org.apache.felix.main.distribution-7.0.5.zip
 unzip org.apache.felix.main.distribution-7.0.5.zip
 ```
 
 2. Build the Project:
 ```bash
-# Navigate to project root
 cd ticket-system-parent
-
-# Build the parent project first
-mvn clean install -N
-
-# Build the API bundle
-cd ticket-api
-mvn clean install
-
-# Build all modules
-cd ..
 mvn clean install
 ```
 
@@ -64,104 +75,90 @@ java -jar bin/felix.jar
 
 4. Install Bundles in Felix Console:
 ```
-g! install file:/path/to/ticket-system-parent/ticket-api/target/ticket-api-1.0-SNAPSHOT.jar
 g! install file:/path/to/ticket-system-parent/ticket-core/target/ticket-core-1.0-SNAPSHOT.jar
 g! install file:/path/to/ticket-system-parent/ticket-consumer/target/ticket-consumer-1.0-SNAPSHOT.jar
 ```
 
-5. Start the Bundles:
-```
-g! lb    # List bundles to see their IDs
-g! start <bundle-id>    # Start each bundle using its ID
-```
-
 ## Verifying Installation
-
 1. Check Bundle Status:
 ```
 g! lb
 ```
-Expected output should show all bundles as ACTIVE:
+Expected output:
 ```
 START LEVEL 1
    ID|State      |Level|Name
     0|Active     |    0|System Bundle (7.0.5)
-    1|Active     |    1|Ticket System API (1.0.0.SNAPSHOT)
-    2|Active     |    1|Ticket System Core (1.0.0.SNAPSHOT)
-    3|Active     |    1|Ticket System Consumer (1.0.0.SNAPSHOT)
+    1|Active     |    1|Ticket System Core (1.0.0.SNAPSHOT)
+    2|Active     |    1|Ticket System Consumer (1.0.0.SNAPSHOT)
 ```
 
 2. Check Service Registration:
 ```
 g! services
 ```
-You should see the TicketService registered.
+
+## Features
+- Ticket Creation and Management
+- Hierarchical Reply System
+- Status Tracking (Open, In Progress, Resolved)
+- Department-based Organization
+- SLA Monitoring (24-hour resolution time)
+- Advanced Search Functionality
+- Comprehensive Test Suite
+
+## Development Workflow
+1. Making Changes:
+```bash
+# After modifying code
+mvn clean install             # Build all modules
+```
+
+2. Hot Reloading in Felix:
+```
+g! update <bundle-id>         # Update an existing bundle
+g! refresh <bundle-id>        # Refresh dependencies
+```
 
 ## Troubleshooting
-
-1. If bundles fail to start:
+1. Bundle Status Check:
 ```
-g! diag <bundle-id>
-```
-This will show dependency issues or other problems.
-
-2. To refresh bundles:
-```
-g! refresh <bundle-id>
+g! lb    # List bundles
+g! diag <bundle-id>    # Diagnose issues
 ```
 
-3. Common Issues:
+2. Common Issues:
+- Bundle State Issues: Use `refresh` command
+- Service Not Found: Verify core bundle is started first
+- Class Not Found: Check package exports/imports in core bundle
 
-- **Bundle not found**: Verify the file path in the install command
-- **Unresolved dependencies**: Check if all required bundles are installed and started
-- **Version mismatch**: Ensure all bundles are using compatible versions
-- **ClassNotFoundException**: Verify export/import package declarations in bundle manifests
-
-4. To stop Felix:
-```
-g! stop 0
-```
+## Technical Details
+- Data Storage: In-memory (non-persistent)
+- ID Generation: UUID-based
+- Thread Safety: ConcurrentHashMap for storage
+- Reply Structure: Tree-based with parent-child relationships
+- SLA Tracking: 24-hour resolution time
+- Search: Case-insensitive content matching
+- Department Recognition: Based on username prefix (e.g., "it.user", "hr.user")
 
 ## Bundle Commands Reference
-
-- List bundles: `lb`
-- Install bundle: `install <path-to-jar>`
-- Start bundle: `start <bundle-id>`
-- Stop bundle: `stop <bundle-id>`
-- Uninstall bundle: `uninstall <bundle-id>`
-- Refresh bundles: `refresh`
-- Show bundle headers: `headers <bundle-id>`
-- Show service registry: `services`
-- Show bundle dependencies: `diag <bundle-id>`
+```
+g! lb                  # List bundles
+g! start <bundle-id>   # Start bundle
+g! stop <bundle-id>    # Stop bundle
+g! headers <bundle-id> # Show bundle headers
+g! services            # List services
+g! help                # Show all commands
+```
 
 ## Testing
+The consumer bundle runs a comprehensive test suite on startup that verifies:
+- Ticket CRUD operations
+- Reply tree management
+- Status filtering
+- Assignee filtering
+- Department grouping
+- Search functionality
+- Concurrent operations
 
-The consumer bundle includes comprehensive tests that will run automatically when the bundle starts. You can observe the test results in the Felix console output.
-
-## Development Tips
-
-1. When making changes:
-   - Rebuild the affected bundle
-   - Uninstall the old version from Felix
-   - Install and start the new version
-
-2. For rapid development:
-   ```bash
-   mvn clean install && \
-   felix:uninstall <bundle-id> && \
-   felix:install file:/path/to/new/bundle.jar && \
-   felix:start <bundle-id>
-   ```
-
-3. To enable debug logging, modify `conf/config.properties` in Felix directory:
-   ```properties
-   org.ops4j.pax.logging.DefaultServiceLog.level=DEBUG
-   ```
-
-## Additional Notes
-
-- The system uses in-memory storage by default
-- All timestamps are in system default timezone
-- Reply trees are maintained in memory and will be lost on bundle restart
-- Ticket IDs are UUIDs
-- The default SLA for ticket resolution is 24 hours
+Test results are displayed in the Felix console when the consumer bundle starts.
